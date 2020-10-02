@@ -151,11 +151,34 @@ customer => preference => recommendation v1 from '5fcfd9bb6c-kg6qb': 206
 ---
 
 IV - Advanced configuration
-1 - Retries, Timeouts and Circuit Breaking
+1 - Retries, Circuit breaker & Timeout
+Istio allows to configure retries, timeouts, or circuit breaker mechanisms when calling a misbehaving service. 
 
-2 - Rate Limiting/Policy
+By default a retry mechanism is applied, and the service is removed from the backend cluster until it's fixed.
 
-3 - Fault Injection
+Break recommendation v2
+$ export RECO_POD=$(oc get pod -n my-tutorial -l 'app=recommendation,version=v2' -o jsonpath='{..metadata.name}')
+$ export RECO_IP=$(oc get pod -n my-tutorial $RECO_POD -o jsonpath='{.status.podIP'})
+$ oc exec -n my-tutorial -c recommendation $RECO_POD -- curl -s $RECO_IP:8080/misbehave
+
+Check service will not call v2 any more
+$ while true; do curl $MY_TUTORIAL_GATEWAY; sleep 1; done
+customer => preference => recommendation v1 from '5fcfd9bb6c-kg6qb': 230
+customer => preference => recommendation v3 from '666b94f647-2b75h': 137
+
+Fix v2
+$ oc exec -n my-tutorial -c recommendation $RECO_POD -- curl -s $RECO_IP:8080/behave
+$ while true; do curl $MY_TUTORIAL_GATEWAY; sleep 1; done
+customer => preference => recommendation v2 from '7fd6798df9-zfphz': 210
+customer => preference => recommendation v3 from '666b94f647-2b75h': 141
+customer => preference => recommendation v1 from '5fcfd9bb6c-kg6qb': 235
+
+2 - Circuit breaker //TODO: TEST IT
+$ oc apply -f recommendation_circuit_breaker.yaml
+
+3 - Rate Limiting/Policy
+
+4 - Fault Injection
 
 V - Security
 1 - mTLS
@@ -201,4 +224,4 @@ customer => preference => recommendation v2 from '7fd6798df9-zfphz': 204
 Clean up
 oc delete policy jwt-example
 
-3 - OPA simple
+//TODO OPA, 3SCALE samples
