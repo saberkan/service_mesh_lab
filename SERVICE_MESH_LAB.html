@@ -130,7 +130,25 @@ customer => preference => recommendation v2 from '7fd6798df9-zfphz': 176
 $ oc logs -f recommendation-v3-666b94f647-2b75h -c recommendation
 ...
 Oct 02, 2020 1:02:11 PM com.redhat.developer.demos.recommendation.rest.RecommendationResource getRecommendations
-INFO: recommendation request from 666b94f647-2b75h: 107
+INFO: recommendation request from 666b94f647-2b75h: 
+
+---
+Remarque:
+For the next part, in order to simplify the demonstration, we will proceed with simple routing rules. Thus, let's client first
+The policies already created and apply a simple config.
+$ oc delete destinationrule recommendation
+$ oc delete virtualservice customer
+$ oc delete 
+
+Let's create simple configuration
+$ oc create -f sample_routing.yaml
+
+Check all ok
+$ while true; do curl $MY_TUTORIAL_GATEWAY; sleep 1; done
+customer => preference => recommendation v2 from '7fd6798df9-zfphz': 181
+customer => preference => recommendation v3 from '666b94f647-2b75h': 112
+customer => preference => recommendation v1 from '5fcfd9bb6c-kg6qb': 206
+---
 
 IV - Advanced configuration
 1 - Retries, Timeouts and Circuit Breaking
@@ -141,6 +159,7 @@ IV - Advanced configuration
 
 V - Security
 1 - mTLS
+
 
 2 - Authentication
 
