@@ -159,6 +159,22 @@ IV - Advanced configuration
 
 V - Security
 1 - mTLS
+Apply preference mtls
+$ oc create -f preference_mtls.yaml
+
+Note: It may take some time before the mesh begins to enforce the policy. If *you do not see the expected behaviors, wait a few more moments and then try *again. Patience is a virtue.
+
+Check traffic from external pod (outside the service mesh cluster), and watch Kiali
+$ oc get pods -l app=curl --no-headers | awk '{print $1}'
+curl-98648bc8b-fdnz6
+
+Out side the mesh (curl -> preference)
+$ curl preference:8080 
+curl: (56) Recv failure: Connection reset by peer
+
+Inside the mesh (customer -> preference)
+$ curl customer:8080
+customer => preference => recommendation v2 from '7fd6798df9-zfphz': 193
 
 
 2 - Authentication
