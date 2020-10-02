@@ -176,7 +176,29 @@ Inside the mesh (customer -> preference)
 $ curl customer:8080
 customer => preference => recommendation v2 from '7fd6798df9-zfphz': 193
 
+Clean up
+$ oc delete DestinationRule preference-destination-rule
+$ oc delete Policy preference-mutualtls
 
 2 - Authentication
+It is possible to authenticate to a service mesh using jwt token or rbac rules. In addition, there is many different implementation options
+using Mixer adapater, EnvoyFilter (in recent versions) or Red Hat Service Mesh built-in option.
+In this example we'll go throug a jwt token authentication.
+
+Create policy for service customer
+$ oc create -f customer_jwt.yaml
+
+Check call is refused
+$ while true; do curl $MY_TUTORIAL_GATEWAY; sleep 1; done
+Origin authentication failed.
+
+Authorise call with token
+TOKEN=$(curl https://raw.githubusercontent.com/istio/istio/release-1.1/security/tools/jwt/samples/demo.jwt -s)
+$ while true; do curl --header "Authorization: Bearer $TOKEN" $MY_TUTORIAL_GATEWAY -s; sleep 1; done 
+customer => preference => recommendation v1 from '5fcfd9bb6c-kg6qb': 228
+customer => preference => recommendation v2 from '7fd6798df9-zfphz': 204
+
+Clean up
+oc delete policy jwt-example
 
 3 - OPA simple
